@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Новости</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .news-card {
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .news-card:hover {
+            transform: translateX(5px);
+        }
+        .news-date {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+        .modal-footer {
+            border-top: none;
+        }
+        .btn-yes {
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-yes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.4);
+            color: white;
+        }
+        .btn-no {
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: bold;
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: white;
+            transition: all 0.3s;
+        }
+        .btn-no:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/student/dashboard}">
+            <i class="bi bi-mortarboard-fill"></i> Личный кабинет
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/student/dashboard}">
+                <i class="bi bi-house-door"></i> Главная
+            </a>
+            <a class="nav-link" th:href="@{/student/profile}">
+                <i class="bi bi-person"></i> Профиль
+            </a>
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="bi bi-box-arrow-right"></i> Выйти
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="bi bi-newspaper"></i> Новости и объявления
+    </h2>
+
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>Важно!</strong> С 1 июня начинается летняя сессия. Проверьте расписание экзаменов.
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card news-card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="badge bg-danger">Важно</span>
+                        Изменения в расписании экзаменов
+                    </h5>
+                    <p class="news-date">
+                        <i class="bi bi-calendar"></i> 14 мая 2024
+                    </p>
+                    <p class="card-text">
+                        Уважаемые студенты! В расписание экзаменов внесены изменения.
+                        Экзамен по Java-разработке перенесен с 20 июня на 18 июня.
+                        Ознакомьтесь с обновленным расписанием в личном кабинете.
+                    </p>
+                    <a href="#" class="btn btn-sm btn-outline-primary">Читать далее</a>
+                </div>
+            </div>
+
+            <div class="card news-card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="badge bg-success">Мероприятие</span>
+                        День открытых дверей IT-компаний
+                    </h5>
+                    <p class="news-date">
+                        <i class="bi bi-calendar"></i> 12 мая 2024
+                    </p>
+                    <p class="card-text">
+                        25 мая в актовом зале университета состоится встреча с представителями
+                        ведущих IT-компаний. Будут представлены стажировки и вакансии для студентов.
+                        Приглашаются все желающие!
+                    </p>
+                    <a href="#" class="btn btn-sm btn-outline-primary">Читать далее</a>
+                </div>
+            </div>
+
+            <div class="card news-card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="badge bg-info">Стипендия</span>
+                        Конкурс на повышенную стипендию
+                    </h5>
+                    <p class="news-date">
+                        <i class="bi bi-calendar"></i> 10 мая 2024
+                    </p>
+                    <p class="card-text">
+                        Открыт прием заявок на повышенную академическую стипендию.
+                        Студенты с высокими академическими достижениями могут подать заявку
+                        до 1 июня в деканате факультета.
+                    </p>
+                    <a href="#" class="btn btn-sm btn-outline-primary">Читать далее</a>
+                </div>
+            </div>
+
+            <div class="card news-card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        Научная конференция "Инновации в IT"
+                    </h5>
+                    <p class="news-date">
+                        <i class="bi bi-calendar"></i> 8 мая 2024
+                    </p>
+                    <p class="card-text">
+                        Приглашаем студентов принять участие в ежегодной научной конференции.
+                        Лучшие доклады будут опубликованы в научном журнале университета.
+                        Регистрация открыта до 20 мая.
+                    </p>
+                    <a href="#" class="btn btn-sm btn-outline-primary">Читать далее</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-bell"></i> Ближайшие события</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong>18 июня</strong><br>
+                            <small>Экзамен по Java</small>
+                        </li>
+                        <li class="mb-2">
+                            <strong>20 июня</strong><br>
+                            <small>Экзамен по БД</small>
+                        </li>
+                        <li class="mb-2">
+                            <strong>25 июня</strong><br>
+                            <small>Защита курсовых</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Полезные ссылки</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none">
+                                <i class="bi bi-journal-text"></i> Учебный план
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none">
+                                <i class="bi bi-building"></i> Сайт университета
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none">
+                                <i class="bi bi-book"></i> Библиотека
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <a th:href="@{/student/dashboard}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Вернуться в главное меню
+        </a>
+    </div>
+</div>
+
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutModalLabel">
+                    <i class="bi bi-box-arrow-right"></i> Подтверждение выхода
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-person-circle" style="font-size: 4rem; color: #667eea;"></i>
+                <h4 class="mt-3" th:text="${student.fullName}"></h4>
+                <p class="text-muted" th:text="${student.email}"></p>
+                <div class="alert alert-warning mt-3" style="border-radius: 15px;">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Вы действительно хотите выйти из личного кабинета?
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <form th:action="@{/perform-logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-yes">
+                        <i class="bi bi-check-lg"></i> Да, выйти
+                    </button>
+                </form>
+                <button type="button" class="btn btn-no" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Нет, остаться
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование профиля</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+        .modal-footer {
+            border-top: none;
+        }
+        .btn-yes {
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-yes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.4);
+            color: white;
+        }
+        .btn-no {
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: bold;
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: white;
+            transition: all 0.3s;
+        }
+        .btn-no:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/student/dashboard}">Личный кабинет</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/student/dashboard}">На главную</a>
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="bi bi-box-arrow-right"></i> Выйти
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="mb-4">Редактирование профиля</h2>
+
+            <form th:action="@{/student/profile/update}"
+                  th:object="${student}" method="post">
+
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">Имя</label>
+                    <input type="text" class="form-control" id="firstName"
+                           th:field="*{firstName}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Фамилия</label>
+                    <input type="text" class="form-control" id="lastName"
+                           th:field="*{lastName}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email"
+                           th:field="*{email}" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Новый пароль (оставьте пустым, если не хотите менять)</label>
+                    <input type="password" class="form-control" id="password"
+                           name="password">
+                </div>
+
+                <div class="mb-3">
+                    <label for="groupName" class="form-label">Группа</label>
+                    <input type="text" class="form-control" id="groupName"
+                           th:field="*{groupName}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="faculty" class="form-label">Факультет</label>
+                    <input type="text" class="form-control" id="faculty"
+                           th:field="*{faculty}">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Сохранить изменения</button>
+                <a th:href="@{/student/dashboard}" class="btn btn-secondary w-100 mt-2">Отмена</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutModalLabel">
+                    <i class="bi bi-box-arrow-right"></i> Подтверждение выхода
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-person-circle" style="font-size: 4rem; color: #667eea;"></i>
+                <h4 class="mt-3" th:text="${student.fullName}"></h4>
+                <p class="text-muted" th:text="${student.email}"></p>
+                <div class="alert alert-warning mt-3" style="border-radius: 15px;">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Вы действительно хотите выйти из личного кабинета?
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <form th:action="@{/perform-logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-yes">
+                        <i class="bi bi-check-lg"></i> Да, выйти
+                    </button>
+                </form>
+                <button type="button" class="btn btn-no" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Нет, остаться
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

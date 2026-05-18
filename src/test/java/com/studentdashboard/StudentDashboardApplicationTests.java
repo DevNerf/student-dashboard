@@ -1,10 +1,10 @@
-package com.studentportal.studentcabinet;
+package com.studentdashboard;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class StudentCabinetApplicationTests {
+class StudentDashboardApplicationTests {
 
     @Test
     void contextLoads() {
