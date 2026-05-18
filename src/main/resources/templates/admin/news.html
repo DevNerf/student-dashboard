@@ -10,6 +10,8 @@
         .card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0; }
         .btn-gradient { border-radius: 50px; padding: 10px 20px; font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; }
+        .pagination .page-link { color: #667eea; border-radius: 50px; margin: 0 3px; }
+        .pagination .active .page-link { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: transparent; color: white; }
     </style>
 </head>
 <body>
@@ -31,6 +33,26 @@
 
     <div th:if="${param.success}" class="alert alert-success">✅ Операция выполнена успешно!</div>
 
+    <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted">
+            Страница <strong th:text="${currentPage + 1}"></strong> из <strong th:text="${totalPages}"></strong>
+        </span>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/news(page=${currentPage - 1})}">&laquo;</a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/admin/news(page=${i})}" th:text="${i + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/news(page=${currentPage + 1})}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
     <div class="card">
         <div class="card-header"><h5>Список новостей</h5></div>
         <div class="card-body p-0">
@@ -43,7 +65,7 @@
                     <td th:text="${n.id}"></td>
                     <td th:text="${n.title}"></td>
                     <td><span class="badge bg-info" th:text="${n.category != null ? n.category : 'Общая'}"></span></td>
-                    <td th:text="${n.publish_date}"></td>
+                    <td th:text="${#temporals.format(n.publishDate, 'dd.MM.yyyy')}"></td>
                     <td>
                         <a th:href="@{/admin/news/edit/{id}(id=${n.id})}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
                         <a th:href="@{/admin/news/delete/{id}(id=${n.id})}" class="btn btn-sm btn-danger" onclick="return confirm('Удалить новость?')"><i class="bi bi-trash"></i></a>

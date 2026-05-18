@@ -9,7 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.studentdashboard.service.SqlService;
+import com.studentdashboard.repository.NewsRepository;
+import org.springframework.data.domain.Pageable;
 
 @Controller
 @RequestMapping("/student")
@@ -59,13 +60,13 @@ public class StudentController {
     }
 
     @Autowired
-    private SqlService sqlService;
+    private NewsRepository newsRepository;
+
     @GetMapping("/news")
     public String news(Authentication auth, Model model) {
         Student student = studentService.findByEmail(auth.getName()).orElseThrow();
         model.addAttribute("student", student);
-        model.addAttribute("newsList", sqlService.getAllNews());
+        model.addAttribute("newsList", newsRepository.findAllByOrderByPublishDateDesc(Pageable.unpaged()).getContent());
         return "student/news";
     }
-
 }

@@ -45,7 +45,7 @@
                     <select name="subjectId" class="form-select" required>
                         <option value="">Выберите предмет</option>
                         <option th:each="s : ${subjects}" th:value="${s.id}"
-                                th:text="${s.name} + ' (' + ${s.exam_type} + ')'"></option>
+                                th:text="${s.name} + ' (' + ${s.examType} + ')'"></option>
                     </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
@@ -69,7 +69,7 @@
                     </thead>
                     <tbody>
                     <tr th:each="s : ${students}">
-                        <td th:text="${s.last_name} + ' ' + ${s.first_name}"></td>
+                        <td th:text="${s.lastName} + ' ' + ${s.firstName}"></td>
                         <td>
                             <input type="number" th:name="'grade_' + ${s.id}"
                                    min="2" max="5" class="form-control" style="width:100px"

@@ -41,7 +41,9 @@
                         <tr><th>Имя:</th><td th:text="${student.firstName}"></td></tr>
                         <tr><th>Фамилия:</th><td th:text="${student.lastName}"></td></tr>
                         <tr><th>Email:</th><td th:text="${student.email}"></td></tr>
+                        <tr><th>Место рождения:</th><td th:text="${student.birthPlace ?: 'Не указано'}"></td></tr>
                         <tr><th>Группа:</th><td th:text="${student.group?.name ?: 'Не указана'}"></td></tr>
+                        <tr><th>Факультет:</th><td th:text="${student.faculty ?: 'Не указан'}"></td></tr>
                     </table>
                     <hr>
                     <h5>Сменить пароль</h5>

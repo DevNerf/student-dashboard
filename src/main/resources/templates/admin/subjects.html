@@ -78,7 +78,7 @@
                     <td th:text="${s.name}"></td>
                     <td th:text="${s.teacher != null ? s.teacher : '—'}"></td>
                     <td th:text="${s.semester != null ? s.semester : '—'}"></td>
-                    <td th:text="${s.exam_type != null ? s.exam_type : '—'}"></td>
+                    <td th:text="${s.examType != null ? s.examType : '—'}"></td>
                     <td>
                         <a th:href="@{/admin/subjects/delete/{id}(id=${s.id})}"
                            class="btn btn-sm btn-danger"

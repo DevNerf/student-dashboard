@@ -10,6 +10,8 @@
         .card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0; }
         .btn-gradient { border-radius: 50px; padding: 10px 20px; font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; }
+        .pagination .page-link { color: #667eea; border-radius: 50px; margin: 0 3px; }
+        .pagination .active .page-link { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: transparent; color: white; }
     </style>
 </head>
 <body>
@@ -30,6 +32,33 @@
         <a th:href="@{/admin/students/create}" class="btn btn-gradient"><i class="bi bi-person-plus"></i> Создать студента</a>
     </div>
 
+    <div class="mb-3">
+        <select class="form-select d-inline-block w-auto" onchange="location.href='?groupId=' + this.value">
+            <option value="">Все группы</option>
+            <option th:each="g : ${groups}" th:value="${g.id}" th:text="${g.name}"></option>
+        </select>
+    </div>
+
+    <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted">
+            Страница <strong th:text="${currentPage + 1}"></strong> из <strong th:text="${totalPages}"></strong>
+        </span>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/students(page=${currentPage - 1}, groupId=${param.groupId})}">&laquo;</a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/admin/students(page=${i}, groupId=${param.groupId})}" th:text="${i + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/students(page=${currentPage + 1}, groupId=${param.groupId})}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
     <div class="card">
         <div class="card-header"><h5>Список студентов</h5></div>
         <div class="card-body p-0">
@@ -40,11 +69,11 @@
                 <tbody>
                 <tr th:each="s : ${students}">
                     <td th:text="${s.id}"></td>
-                    <td th:text="${s.first_name}"></td>
-                    <td th:text="${s.last_name}"></td>
+                    <td th:text="${s.firstName}"></td>
+                    <td th:text="${s.lastName}"></td>
                     <td th:text="${s.email}"></td>
                     <td>
-                        <span class="badge bg-primary" th:text="${s.group_name != null ? s.group_name : 'Без группы'}"></span>
+                        <span class="badge bg-primary" th:text="${s.group?.name != null ? s.group.name : 'Без группы'}"></span>
                     </td>
                     <td>
                         <a th:href="@{/admin/students/edit/{id}(id=${s.id})}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
