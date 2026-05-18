@@ -12,11 +12,10 @@ public class StudentService {
 
     @Autowired
     private StudentRepository studentRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Student register(Student student) {
+    public Student createStudent(Student student) {
         student.setPassword(passwordEncoder.encode(student.getPassword()));
         student.setRole("STUDENT");
         return studentRepository.save(student);
@@ -30,19 +29,26 @@ public class StudentService {
         return studentRepository.findById(id);
     }
 
-    public Student updateProfile(Long id, Student updatedStudent) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Студент не найден"));
-
-        student.setFirstName(updatedStudent.getFirstName());
-        student.setLastName(updatedStudent.getLastName());
-        student.setGroupName(updatedStudent.getGroupName());
-        student.setFaculty(updatedStudent.getFaculty());
-
-        if (updatedStudent.getPassword() != null && !updatedStudent.getPassword().isEmpty()) {
-            student.setPassword(passwordEncoder.encode(updatedStudent.getPassword()));
+    public Student updateStudent(Student updated) {
+        Student existing = studentRepository.findById(updated.getId()).orElseThrow();
+        existing.setFirstName(updated.getFirstName());
+        existing.setLastName(updated.getLastName());
+        existing.setBirthPlace(updated.getBirthPlace());
+        existing.setFaculty(updated.getFaculty());
+        existing.setGroup(updated.getGroup());
+        if (updated.getPassword() != null && !updated.getPassword().isEmpty()) {
+            existing.setPassword(passwordEncoder.encode(updated.getPassword()));
         }
+        return studentRepository.save(existing);
+    }
 
-        return studentRepository.save(student);
+    public void changePassword(Long id, String newPassword) {
+        Student student = studentRepository.findById(id).orElseThrow();
+        student.setPassword(passwordEncoder.encode(newPassword));
+        studentRepository.save(student);
+    }
+
+    public void deleteStudent(Long id) {
+        studentRepository.deleteById(id);
     }
 }

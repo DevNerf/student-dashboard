@@ -1,6 +1,8 @@
 package com.studentdashboard.controller;
 
 import com.studentdashboard.model.Student;
+import com.studentdashboard.repository.GradeRepository;
+import com.studentdashboard.repository.SubjectRepository;
 import com.studentdashboard.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -12,67 +14,52 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/student")
 public class StudentController {
 
-    @Autowired
-    private StudentService studentService;
+    @Autowired private StudentService studentService;
+    @Autowired private GradeRepository gradeRepository;
+    @Autowired private SubjectRepository subjectRepository;
 
     @GetMapping("/dashboard")
-    public String dashboard(Authentication authentication, Model model) {
-        String email = authentication.getName();
-        Student student = studentService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Студент не найден"));
-
+    public String dashboard(Authentication auth, Model model) {
+        Student student = studentService.findByEmail(auth.getName()).orElseThrow();
         model.addAttribute("student", student);
-        return "dashboard";
+        return "student/dashboard";
     }
 
     @GetMapping("/profile")
-    public String profile(Authentication authentication, Model model) {
-        String email = authentication.getName();
-        Student student = studentService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Студент не найден"));
-
+    public String profile(Authentication auth, Model model) {
+        Student student = studentService.findByEmail(auth.getName()).orElseThrow();
         model.addAttribute("student", student);
-        return "profile";
+        model.addAttribute("readonly", true);
+        return "student/profile";
     }
 
-    @PostMapping("/profile/update")
-    public String updateProfile(Authentication authentication,
-                                @ModelAttribute Student updatedStudent) {
-        String email = authentication.getName();
-        Student currentStudent = studentService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Студент не найден"));
-
-        studentService.updateProfile(currentStudent.getId(), updatedStudent);
-        return "redirect:/student/dashboard?updated";
-    }
-
-    @GetMapping("/schedule")
-    public String schedule(Authentication authentication, Model model) {
-        String email = authentication.getName();
-        Student student = studentService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Студент не найден"));
-
-        model.addAttribute("student", student);
-        return "schedule";
+    @PostMapping("/profile/change-password")
+    public String changePassword(Authentication auth, @RequestParam String newPassword) {
+        Student student = studentService.findByEmail(auth.getName()).orElseThrow();
+        studentService.changePassword(student.getId(), newPassword);
+        return "redirect:/student/dashboard?passwordChanged";
     }
 
     @GetMapping("/gradebook")
-    public String gradebook(Authentication authentication, Model model) {
-        String email = authentication.getName();
-        Student student = studentService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Студент не найден"));
-
+    public String gradebook(Authentication auth, Model model) {
+        Student student = studentService.findByEmail(auth.getName()).orElseThrow();
         model.addAttribute("student", student);
-        return "gradebook";
+        model.addAttribute("grades", gradeRepository.findByStudentId(student.getId()));
+        model.addAttribute("subjects", subjectRepository.findAll());
+        return "student/gradebook";
+    }
+
+    @GetMapping("/schedule")
+    public String schedule(Authentication auth, Model model) {
+        Student student = studentService.findByEmail(auth.getName()).orElseThrow();
+        model.addAttribute("student", student);
+        model.addAttribute("subjects", subjectRepository.findAll());
+        return "student/schedule";
     }
 
     @GetMapping("/news")
-    public String news(Authentication authentication, Model model) {
-        String email = authentication.getName();
-        Student student = studentService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Студент не найден"));
-
-        model.addAttribute("student", student);
-        return "news";
+    public String news(Authentication auth, Model model) {
+        model.addAttribute("student", studentService.findByEmail(auth.getName()).orElseThrow());
+        return "student/news";
     }
 }

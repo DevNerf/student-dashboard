@@ -1,4 +1,4 @@
-package com.studentdashboard.security;
+package com.studentdashboard.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
 import javax.sql.DataSource;
 
 @Configuration
@@ -19,18 +18,26 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/student/**").authenticated()
+                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/student/**").hasAnyRole("STUDENT", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/student/dashboard", true)
+                        .successHandler((request, response, authentication) -> {
+                            if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                                response.sendRedirect("/admin/dashboard");
+                            } else {
+                                response.sendRedirect("/student/dashboard");
+                            }
+                        })
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/perform-logout")
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID", "remember-me")
@@ -38,7 +45,7 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session
                         .maximumSessions(1)
-                        .expiredUrl("/login")
+                        .expiredUrl("/login?expired=true")
                 );
 
         return http.build();
@@ -52,15 +59,8 @@ public class SecurityConfig {
     @Bean
     public JdbcUserDetailsManager userDetailsManager(DataSource dataSource) {
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
-
-        manager.setUsersByUsernameQuery(
-                "SELECT email, password, true FROM students WHERE email = ?"
-        );
-
-        manager.setAuthoritiesByUsernameQuery(
-                "SELECT email, CONCAT('ROLE_', role) FROM students WHERE email = ?"
-        );
-
+        manager.setUsersByUsernameQuery("SELECT email, password, true FROM students WHERE email = ?");
+        manager.setAuthoritiesByUsernameQuery("SELECT email, CONCAT('ROLE_', role) FROM students WHERE email = ?");
         return manager;
     }
 }
