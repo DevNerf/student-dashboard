@@ -44,8 +44,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .sessionManagement(session -> session
-                        .maximumSessions(1)
-                        .expiredUrl("/login?expired=true")
+                        .sessionFixation().migrateSession()
                 );
 
         return http.build();
