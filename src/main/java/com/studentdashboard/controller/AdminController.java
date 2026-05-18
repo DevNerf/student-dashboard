@@ -20,6 +20,7 @@ public class AdminController {
         model.addAttribute("studentCount", sqlService.countStudents());
         model.addAttribute("groupCount", sqlService.countGroups());
         model.addAttribute("subjectCount", sqlService.countSubjects());
+        model.addAttribute("newsCount", sqlService.countNews());  // ← добавить сюда
         return "admin/dashboard";
     }
 
@@ -150,5 +151,45 @@ public class AdminController {
             }
         });
         return "redirect:/admin/grades?success&groupId=" + groupId + "&subjectId=" + subjectId;
+    }
+
+    @GetMapping("/news")
+    public String news(Model model) {
+        model.addAttribute("newsList", sqlService.getAllNews());
+        return "admin/news";
+    }
+
+    @GetMapping("/news/create")
+    public String createNewsForm() {
+        return "admin/news-form";
+    }
+
+    @PostMapping("/news/save")
+    public String saveNews(@RequestParam String title,
+                           @RequestParam String content,
+                           @RequestParam(required = false) String category) {
+        sqlService.createNews(title, content, category);
+        return "redirect:/admin/news?success";
+    }
+
+    @GetMapping("/news/edit/{id}")
+    public String editNews(@PathVariable Long id, Model model) {
+        model.addAttribute("news", sqlService.getNewsById(id));
+        return "admin/news-form";
+    }
+
+    @PostMapping("/news/update/{id}")
+    public String updateNews(@PathVariable Long id,
+                             @RequestParam String title,
+                             @RequestParam String content,
+                             @RequestParam(required = false) String category) {
+        sqlService.updateNews(id, title, content, category);
+        return "redirect:/admin/news?success";
+    }
+
+    @GetMapping("/news/delete/{id}")
+    public String deleteNews(@PathVariable Long id) {
+        sqlService.deleteNews(id);
+        return "redirect:/admin/news?success";
     }
 }

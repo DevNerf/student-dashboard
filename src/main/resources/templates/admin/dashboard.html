@@ -85,6 +85,9 @@
                 <a class="nav-link" th:href="@{/admin/grades}">
                     <i class="bi bi-journal-check"></i> Оценки
                 </a>
+                <a class="nav-link" th:href="@{/admin/news}">
+                    <i class="bi bi-newspaper"></i> Новости
+                </a>
                 <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
                     <i class="bi bi-box-arrow-right"></i> Выйти
                 </a>
@@ -98,7 +101,7 @@
         <div class="row align-items-center">
             <div class="col-md-12">
                 <h2>Администрирование</h2>
-                <p class="mb-0">Управление группами, предметами и оценками</p>
+                <p class="mb-0">Управление группами, предметами, новостями и оценками</p>
             </div>
         </div>
     </div>
@@ -162,6 +165,25 @@
                 </div>
             </a>
         </div>
+
+        <div class="col-md-4 mb-4">
+            <a th:href="@{/admin/news}" class="text-decoration-none">
+                <div class="card option-card h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="card-icon text-warning">
+                            <i class="bi bi-newspaper"></i>
+                        </div>
+                        <h4 class="card-title">Новости</h4>
+                        <p class="card-text text-muted">
+                            Добавление и управление новостями
+                        </p>
+                        <span class="btn btn-warning text-white">
+                            <i class="bi bi-arrow-right"></i> Открыть
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 
     <div class="row mt-4">
@@ -184,6 +206,10 @@
                             <th>Предметов:</th>
                             <td><span class="badge bg-info fs-6" th:text="${subjectCount}">0</span></td>
                         </tr>
+                        <tr>
+                            <th>Новостей:</th>
+                            <td><span class="badge bg-warning fs-6" th:text="${newsCount}">0</span></td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -204,6 +230,9 @@
                         </a>
                         <a th:href="@{/admin/groups}" class="btn btn-info text-white">
                             <i class="bi bi-plus-circle"></i> Создать группу
+                        </a>
+                        <a th:href="@{/admin/news/create}" class="btn btn-warning text-white">
+                            <i class="bi bi-plus-circle"></i> Добавить новость
                         </a>
                     </div>
                 </div>

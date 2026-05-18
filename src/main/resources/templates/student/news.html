@@ -17,7 +17,6 @@
             color: #6c757d;
             font-size: 0.9rem;
         }
-
         .modal-content {
             border-radius: 20px;
             border: none;
@@ -84,131 +83,27 @@
         <i class="bi bi-newspaper"></i> Новости и объявления
     </h2>
 
-    <div class="alert alert-warning">
-        <i class="bi bi-exclamation-triangle"></i>
-        <strong>Важно!</strong> С 1 июня начинается летняя сессия. Проверьте расписание экзаменов.
-    </div>
-
     <div class="row">
         <div class="col-md-8">
-            <div class="card news-card">
+            <div class="card news-card" th:each="n : ${newsList}">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <span class="badge bg-danger">Важно</span>
-                        Изменения в расписании экзаменов
+                        <span class="badge bg-danger" th:if="${n.category == 'Важно'}" th:text="${n.category}"></span>
+                        <span class="badge bg-success" th:if="${n.category == 'Мероприятие'}" th:text="${n.category}"></span>
+                        <span class="badge bg-info" th:if="${n.category == 'Стипендия'}" th:text="${n.category}"></span>
+                        <span class="badge bg-warning" th:if="${n.category == 'Экзамены'}" th:text="${n.category}"></span>
+                        <span class="badge bg-secondary" th:if="${n.category == null or n.category == ''}">Общая</span>
+                        <span th:text="${n.title}"></span>
                     </h5>
                     <p class="news-date">
-                        <i class="bi bi-calendar"></i> 14 мая 2024
+                        <i class="bi bi-calendar"></i> <span th:text="${n.publish_date}"></span>
                     </p>
-                    <p class="card-text">
-                        Уважаемые студенты! В расписание экзаменов внесены изменения.
-                        Экзамен по Java-разработке перенесен с 20 июня на 18 июня.
-                        Ознакомьтесь с обновленным расписанием в личном кабинете.
-                    </p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Читать далее</a>
+                    <p class="card-text" th:text="${n.content}"></p>
                 </div>
             </div>
 
-            <div class="card news-card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <span class="badge bg-success">Мероприятие</span>
-                        День открытых дверей IT-компаний
-                    </h5>
-                    <p class="news-date">
-                        <i class="bi bi-calendar"></i> 12 мая 2024
-                    </p>
-                    <p class="card-text">
-                        25 мая в актовом зале университета состоится встреча с представителями
-                        ведущих IT-компаний. Будут представлены стажировки и вакансии для студентов.
-                        Приглашаются все желающие!
-                    </p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Читать далее</a>
-                </div>
-            </div>
-
-            <div class="card news-card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <span class="badge bg-info">Стипендия</span>
-                        Конкурс на повышенную стипендию
-                    </h5>
-                    <p class="news-date">
-                        <i class="bi bi-calendar"></i> 10 мая 2024
-                    </p>
-                    <p class="card-text">
-                        Открыт прием заявок на повышенную академическую стипендию.
-                        Студенты с высокими академическими достижениями могут подать заявку
-                        до 1 июня в деканате факультета.
-                    </p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Читать далее</a>
-                </div>
-            </div>
-
-            <div class="card news-card">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        Научная конференция "Инновации в IT"
-                    </h5>
-                    <p class="news-date">
-                        <i class="bi bi-calendar"></i> 8 мая 2024
-                    </p>
-                    <p class="card-text">
-                        Приглашаем студентов принять участие в ежегодной научной конференции.
-                        Лучшие доклады будут опубликованы в научном журнале университета.
-                        Регистрация открыта до 20 мая.
-                    </p>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Читать далее</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0"><i class="bi bi-bell"></i> Ближайшие события</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <strong>18 июня</strong><br>
-                            <small>Экзамен по Java</small>
-                        </li>
-                        <li class="mb-2">
-                            <strong>20 июня</strong><br>
-                            <small>Экзамен по БД</small>
-                        </li>
-                        <li class="mb-2">
-                            <strong>25 июня</strong><br>
-                            <small>Защита курсовых</small>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Полезные ссылки</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <a href="#" class="text-decoration-none">
-                                <i class="bi bi-journal-text"></i> Учебный план
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="#" class="text-decoration-none">
-                                <i class="bi bi-building"></i> Сайт университета
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="#" class="text-decoration-none">
-                                <i class="bi bi-book"></i> Библиотека
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <div th:if="${newsList == null or newsList.isEmpty()}" class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Новостей пока нет.
             </div>
         </div>
     </div>
@@ -231,7 +126,7 @@
             </div>
             <div class="modal-body text-center py-4">
                 <i class="bi bi-person-circle" style="font-size: 4rem; color: #667eea;"></i>
-                <h4 class="mt-3" th:text="${student.fullName}"></h4>
+                <h4 class="mt-3" th:text="${student.lastName + ' ' + student.firstName}"></h4>
                 <p class="text-muted" th:text="${student.email}"></p>
                 <div class="alert alert-warning mt-3" style="border-radius: 15px;">
                     <i class="bi bi-exclamation-triangle"></i>

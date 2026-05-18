@@ -141,6 +141,36 @@ public class SqlService {
         return jdbcTemplate.queryForList(sql, subjectId, groupId);
     }
 
+    public void createNews(String title, String content, String category) {
+        jdbcTemplate.update(
+                "INSERT INTO news (title, content, publish_date, category) VALUES (?, ?, CURRENT_DATE, ?)",
+                title, content, category
+        );
+    }
+
+    public void updateNews(Long id, String title, String content, String category) {
+        jdbcTemplate.update(
+                "UPDATE news SET title=?, content=?, category=? WHERE id=?",
+                title, content, category, id
+        );
+    }
+
+    public void deleteNews(Long id) {
+        jdbcTemplate.update("DELETE FROM news WHERE id = ?", id);
+    }
+
+    public List<Map<String, Object>> getAllNews() {
+        return jdbcTemplate.queryForList("SELECT * FROM news ORDER BY publish_date DESC");
+    }
+
+    public Map<String, Object> getNewsById(Long id) {
+        return jdbcTemplate.queryForMap("SELECT * FROM news WHERE id = ?", id);
+    }
+
+    public int countNews() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM news", Integer.class);
+    }
+
     public int countStudents() {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM students", Integer.class);
     }

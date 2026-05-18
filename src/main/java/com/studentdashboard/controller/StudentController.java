@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.studentdashboard.service.SqlService;
 
 @Controller
 @RequestMapping("/student")
@@ -57,9 +58,14 @@ public class StudentController {
         return "student/schedule";
     }
 
+    @Autowired
+    private SqlService sqlService;
     @GetMapping("/news")
     public String news(Authentication auth, Model model) {
-        model.addAttribute("student", studentService.findByEmail(auth.getName()).orElseThrow());
+        Student student = studentService.findByEmail(auth.getName()).orElseThrow();
+        model.addAttribute("student", student);
+        model.addAttribute("newsList", sqlService.getAllNews());
         return "student/news";
     }
+
 }
