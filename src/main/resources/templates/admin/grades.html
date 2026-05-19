@@ -11,6 +11,10 @@
         .card-header { background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%); color: white; border-radius: 20px 20px 0 0; }
         .btn-gradient { border-radius: 50px; padding: 10px 25px; font-weight: bold; border: none; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .form-select { border-radius: 10px; }
+        .grade-5 { color: #28a745; font-weight: bold; }
+        .grade-4 { color: #17a2b8; font-weight: bold; }
+        .grade-3 { color: #ffc107; font-weight: bold; }
+        .grade-2 { color: #dc3545; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -57,7 +61,8 @@
 
     <div class="card" th:if="${students != null and selectedSubjectId != null}">
         <div class="card-header">
-            <h5>Выставление оценок</h5>
+            <h5>Выставление оценок (0–100 баллов)</h5>
+            <small>86–100: Отлично | 71–85: Хорошо | 56–70: Удовл. | 0–55: Неуд.</small>
         </div>
         <div class="card-body">
             <form th:action="@{/admin/grades/save}" method="post">
@@ -65,15 +70,19 @@
                 <input type="hidden" name="groupId" th:value="${selectedGroupId}">
                 <table class="table">
                     <thead>
-                    <tr><th>Студент</th><th>Оценка (2-5)</th></tr>
+                    <tr><th>Студент</th><th>Баллы (0–100)</th><th>Оценка</th></tr>
                     </thead>
                     <tbody>
                     <tr th:each="s : ${students}">
                         <td th:text="${s.lastName} + ' ' + ${s.firstName}"></td>
                         <td>
                             <input type="number" th:name="'grade_' + ${s.id}"
-                                   min="2" max="5" class="form-control" style="width:100px"
-                                   th:value="${gradeMap != null ? gradeMap[s.id] : ''}">
+                                   min="0" max="100" class="form-control" style="width:100px"
+                                   th:value="${gradeMap != null ? gradeMap[s.id] : ''}"
+                                   oninput="updateGrade(this)">
+                        </td>
+                        <td>
+                            <span class="grade-label" th:attr="data-target='grade_' + ${s.id}">—</span>
                         </td>
                     </tr>
                     </tbody>
@@ -87,6 +96,32 @@
         Выберите группу и предмет, затем нажмите «Показать»
     </div>
 </div>
+
+<script>
+    function updateGrade(input) {
+        var value = parseInt(input.value) || 0;
+        var targetId = input.name;
+        var label = document.querySelector('[data-target="' + targetId + '"]');
+        if (!label) return;
+
+        if (value >= 86) {
+            label.textContent = 'Отлично (5)';
+            label.className = 'grade-5';
+        } else if (value >= 71) {
+            label.textContent = 'Хорошо (4)';
+            label.className = 'grade-4';
+        } else if (value >= 56) {
+            label.textContent = 'Удовл. (3)';
+            label.className = 'grade-3';
+        } else if (value > 0) {
+            label.textContent = 'Неуд. (2)';
+            label.className = 'grade-2';
+        } else {
+            label.textContent = '—';
+            label.className = '';
+        }
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

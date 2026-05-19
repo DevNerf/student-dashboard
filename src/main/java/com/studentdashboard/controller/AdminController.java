@@ -220,7 +220,7 @@ public class AdminController {
                 try {
                     Long studentId = Long.parseLong(key.replace("grade_", ""));
                     int gradeValue = Integer.parseInt(value.trim());
-                    if (gradeValue >= 2 && gradeValue <= 5) {
+                    if (gradeValue >= 0 && gradeValue <= 100) {
                         Student student = studentRepository.findById(studentId).orElse(null);
                         if (student != null) {
                             Grade grade = new Grade();
