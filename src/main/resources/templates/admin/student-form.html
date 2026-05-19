@@ -31,14 +31,19 @@
                 <div class="card-body">
                     <form th:action="${student != null ? '/admin/students/update/' + student.id : '/admin/students/save'}" method="post">
                         <div class="mb-3">
+                            <label class="form-label">Фамилия</label>
+                            <input type="text" name="lastName" class="form-control" required
+                                   th:value="${student != null ? student.lastName : ''}">
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Имя</label>
                             <input type="text" name="firstName" class="form-control" required
                                    th:value="${student != null ? student.firstName : ''}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Фамилия</label>
-                            <input type="text" name="lastName" class="form-control" required
-                                   th:value="${student != null ? student.lastName : ''}">
+                            <label class="form-label">Отчество</label>
+                            <input type="text" name="middleName" class="form-control"
+                                   th:value="${student != null ? student.middleName : ''}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email</label>

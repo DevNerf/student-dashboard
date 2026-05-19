@@ -36,6 +36,10 @@
             <option value="2" th:selected="${selectedSemester == 2}">2 семестр</option>
             <option value="3" th:selected="${selectedSemester == 3}">3 семестр</option>
             <option value="4" th:selected="${selectedSemester == 4}">4 семестр</option>
+            <option value="5" th:selected="${selectedSemester == 5}">5 семестр</option>
+            <option value="6" th:selected="${selectedSemester == 6}">6 семестр</option>
+            <option value="7" th:selected="${selectedSemester == 7}">7 семестр</option>
+            <option value="8" th:selected="${selectedSemester == 8}">8 семестр</option>
         </select>
     </div>
 
@@ -63,7 +67,7 @@
                             <select name="studentId" class="form-select" onchange="this.form.submit()">
                                 <option value="">— Выберите —</option>
                                 <option th:each="s : ${students}" th:value="${s.id}"
-                                        th:text="${s.lastName + ' ' + s.firstName}"
+                                        th:text="${s.lastName + ' ' + s.firstName + (s.middleName != null ? ' ' + s.middleName : '') + ' (' + s.email + ')'}"
                                         th:selected="${selectedStudent?.id == s.id}"></option>
                             </select>
                         </form>
@@ -75,7 +79,8 @@
         <div class="col-md-8" th:if="${selectedStudent != null}">
             <div class="card">
                 <div class="card-header">
-                    <h6>📝 Курсы: <span th:text="${selectedStudent.lastName + ' ' + selectedStudent.firstName}"></span>
+                    <h6>📝 Курсы: <span th:text="${selectedStudent.lastName + ' ' + selectedStudent.firstName + (selectedStudent.middleName != null ? ' ' + selectedStudent.middleName : '')}"></span>
+                        (<span th:text="${selectedStudent.email}"></span>)
                         (выбрано: <span th:text="${electiveCount}"></span>)
                     </h6>
                 </div>
@@ -122,7 +127,8 @@
                         </select>
                     </form>
                     <ul class="list-group" th:if="${subjectStudents != null}">
-                        <li class="list-group-item" th:each="s : ${subjectStudents}" th:text="${s.lastName + ' ' + s.firstName + ' (' + s.group?.name + ')'}"></li>
+                        <li class="list-group-item" th:each="s : ${subjectStudents}"
+                            th:text="${s.lastName + ' ' + s.firstName + (s.middleName != null ? ' ' + s.middleName : '') + ' (' + s.email + ') — ' + (s.group?.name ?: 'Без группы')}"></li>
                     </ul>
                     <div th:if="${subjectStudents != null and subjectStudents.isEmpty()}" class="text-muted">
                         Никто не выбрал этот предмет

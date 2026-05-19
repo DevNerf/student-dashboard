@@ -87,11 +87,12 @@
                 <input type="hidden" name="groupId" th:value="${selectedGroupId}">
                 <table class="table table-hover">
                     <thead class="table-dark">
-                    <tr><th>Студент</th><th>Баллы (0–100)</th><th>Оценка</th></tr>
+                    <tr><th>Студент</th><th>Email</th><th>Баллы (0–100)</th><th>Оценка</th></tr>
                     </thead>
                     <tbody>
                     <tr th:each="s : ${students}">
-                        <td th:text="${s.lastName} + ' ' + ${s.firstName}"></td>
+                        <td th:text="${s.lastName + ' ' + s.firstName + (s.middleName != null ? ' ' + s.middleName : '')}"></td>
+                        <td th:text="${s.email}"></td>
                         <td>
                             <input type="number" th:name="'grade_' + ${s.id}"
                                    min="0" max="100" class="form-control grade-input" style="width:100px"

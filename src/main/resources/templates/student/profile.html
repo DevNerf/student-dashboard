@@ -76,8 +76,9 @@
                 <div class="card-header"><h4>Профиль</h4></div>
                 <div class="card-body">
                     <table class="table">
-                        <tr><th>Имя:</th><td th:text="${student.firstName}"></td></tr>
                         <tr><th>Фамилия:</th><td th:text="${student.lastName}"></td></tr>
+                        <tr><th>Имя:</th><td th:text="${student.firstName}"></td></tr>
+                        <tr><th>Отчество:</th><td th:text="${student.middleName}"></td></tr>
                         <tr><th>Email:</th><td th:text="${student.email}"></td></tr>
                         <tr><th>Место рождения:</th><td th:text="${student.birthPlace ?: 'Не указано'}"></td></tr>
                         <tr><th>Группа:</th><td th:text="${student.group?.name ?: 'Не указана'}"></td></tr>

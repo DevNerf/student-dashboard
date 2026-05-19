@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,8 @@ public class AdminController {
     @Autowired private GradeRepository gradeRepository;
     @Autowired private NewsRepository newsRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private StudentSubjectRepository studentSubjectRepository;
+    @Autowired private CriteriaQueryService criteriaQueryService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -41,7 +44,7 @@ public class AdminController {
                            @RequestParam(defaultValue = "0") int page,
                            @RequestParam(defaultValue = "10") int size,
                            Model model) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("lastName").ascending());
         Page<Student> studentPage;
 
         if (groupId != null) {
@@ -65,6 +68,7 @@ public class AdminController {
 
     @PostMapping("/students/save")
     public String save(@RequestParam String firstName, @RequestParam String lastName,
+                       @RequestParam(required = false) String middleName,
                        @RequestParam String email, @RequestParam String password,
                        @RequestParam(required = false) String birthPlace,
                        @RequestParam(required = false) Long groupId,
@@ -79,6 +83,7 @@ public class AdminController {
         Student student = new Student();
         student.setFirstName(firstName);
         student.setLastName(lastName);
+        student.setMiddleName(middleName);
         student.setEmail(email);
         student.setPassword(passwordEncoder.encode(password));
         student.setBirthPlace(birthPlace);
@@ -104,7 +109,9 @@ public class AdminController {
 
     @PostMapping("/students/update/{id}")
     public String update(@PathVariable Long id, @RequestParam String firstName,
-                         @RequestParam String lastName, @RequestParam String email,
+                         @RequestParam String lastName,
+                         @RequestParam(required = false) String middleName,
+                         @RequestParam String email,
                          @RequestParam(required = false) String password,
                          @RequestParam(required = false) String birthPlace,
                          @RequestParam(required = false) Long groupId,
@@ -112,6 +119,7 @@ public class AdminController {
         Student student = studentRepository.findById(id).orElseThrow();
         student.setFirstName(firstName);
         student.setLastName(lastName);
+        student.setMiddleName(middleName);
         student.setEmail(email);
         student.setBirthPlace(birthPlace);
         student.setFaculty(faculty);
@@ -205,7 +213,10 @@ public class AdminController {
         model.addAttribute("selectedSubjectId", subjectId);
 
         if (groupId != null && subjectId != null) {
-            model.addAttribute("students", studentRepository.findByGroupId(groupId));
+            //model.addAttribute("students", studentRepository.findByGroupId(groupId));
+            List<Student> students = studentRepository.findByGroupId(groupId);
+            students.sort(Comparator.comparing(Student::getLastName));
+            model.addAttribute("students", students);
             model.addAttribute("selectedGroupId", groupId);
             model.addAttribute("selectedSubjectId", subjectId);
 
@@ -248,7 +259,6 @@ public class AdminController {
                 } catch (NumberFormatException ignored) {}
             }
         });
-
         return "redirect:/admin/grades?success&groupId=" + groupId + "&subjectId=" + subjectId + "&semester=" + semester;
     }
 
@@ -365,12 +375,6 @@ public class AdminController {
         return "redirect:/admin/news?success";
     }
 
-    @Autowired
-    private StudentSubjectRepository studentSubjectRepository;
-
-    @Autowired
-    private CriteriaQueryService criteriaQueryService;
-
     @GetMapping("/electives")
     public String electives(@RequestParam(required = false) Long groupId,
                             @RequestParam(required = false) Long studentId,
@@ -378,7 +382,10 @@ public class AdminController {
                             @RequestParam(required = false) Long subjectId,
                             Model model) {
         if (groupId != null) {
-            model.addAttribute("students", studentRepository.findByGroupId(groupId));
+            //model.addAttribute("students", studentRepository.findByGroupId(groupId));
+            List<Student> students = studentRepository.findByGroupId(groupId);
+            students.sort(Comparator.comparing(Student::getLastName));
+            model.addAttribute("students", students);
             model.addAttribute("selectedGroupId", groupId);
         } else {
             model.addAttribute("students", studentRepository.findAll());

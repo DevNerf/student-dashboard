@@ -20,6 +20,8 @@ public class Student {
     @NotBlank(message = "Фамилия обязательна")
     private String lastName;
 
+    private String middleName;
+
     private String birthPlace;
 
     @Email(message = "Некорректный email")
@@ -47,6 +49,8 @@ public class Student {
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
+    public String getMiddleName() { return middleName; }           // ← ДОБАВЛЕНО
+    public void setMiddleName(String middleName) { this.middleName = middleName; }  // ← ДОБАВЛЕНО
     public String getBirthPlace() { return birthPlace; }
     public void setBirthPlace(String birthPlace) { this.birthPlace = birthPlace; }
     public String getEmail() { return email; }
@@ -63,6 +67,10 @@ public class Student {
     public void setGrades(List<Grade> grades) { this.grades = grades; }
 
     public String getFullName() {
-        return firstName + " " + lastName;
+        String result = lastName + " " + firstName;
+        if (middleName != null && !middleName.isEmpty()) {
+            result += " " + middleName;
+        }
+        return result;
     }
 }
