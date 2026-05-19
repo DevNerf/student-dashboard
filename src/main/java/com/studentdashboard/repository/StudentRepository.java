@@ -11,6 +11,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     Optional<Student> findByEmail(String email);
     boolean existsByEmail(String email);
     List<Student> findByGroupId(Long groupId);
-    Page<Student> findByGroupId(Long groupId, Pageable pageable);
-    Page<Student> findAll(Pageable pageable);
+    Page<Student> findByGroupId(Long groupId, Pageable pageable);  // ← добавить
 }

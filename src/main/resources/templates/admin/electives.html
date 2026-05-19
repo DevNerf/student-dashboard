@@ -31,16 +31,21 @@
 
     <div class="mb-3">
         <label class="form-label fw-bold">Семестр:</label>
-        <select class="form-select d-inline-block w-auto" onchange="location.href='?semester=' + this.value + '&groupId=' + (document.querySelector('[name=groupId]')?.value || '')">
-            <option value="1" th:selected="${selectedSemester == 1}">1 семестр</option>
-            <option value="2" th:selected="${selectedSemester == 2}">2 семестр</option>
-            <option value="3" th:selected="${selectedSemester == 3}">3 семестр</option>
-            <option value="4" th:selected="${selectedSemester == 4}">4 семестр</option>
-            <option value="5" th:selected="${selectedSemester == 5}">5 семестр</option>
-            <option value="6" th:selected="${selectedSemester == 6}">6 семестр</option>
-            <option value="7" th:selected="${selectedSemester == 7}">7 семестр</option>
-            <option value="8" th:selected="${selectedSemester == 8}">8 семестр</option>
-        </select>
+        <form th:action="@{/admin/electives}" method="get" style="display:inline;">
+            <input type="hidden" name="groupId" th:value="${selectedGroupId}">
+            <input type="hidden" name="studentId" th:value="${selectedStudent?.id}">
+            <input type="hidden" name="subjectId" th:value="${selectedSubject?.id}">
+            <select name="semester" class="form-select d-inline-block w-auto" onchange="this.form.submit()">
+                <option value="1" th:selected="${selectedSemester == 1}">1 семестр</option>
+                <option value="2" th:selected="${selectedSemester == 2}">2 семестр</option>
+                <option value="3" th:selected="${selectedSemester == 3}">3 семестр</option>
+                <option value="4" th:selected="${selectedSemester == 4}">4 семестр</option>
+                <option value="5" th:selected="${selectedSemester == 5}">5 семестр</option>
+                <option value="6" th:selected="${selectedSemester == 6}">6 семестр</option>
+                <option value="7" th:selected="${selectedSemester == 7}">7 семестр</option>
+                <option value="8" th:selected="${selectedSemester == 8}">8 семестр</option>
+            </select>
+        </form>
     </div>
 
     <div class="row">
@@ -52,7 +57,9 @@
                         <label class="form-label small">Группа:</label>
                         <form th:action="@{/admin/electives}" method="get" id="groupForm">
                             <input type="hidden" name="semester" th:value="${selectedSemester}">
-                            <select name="groupId" class="form-select" onchange="document.getElementById('groupForm').submit()">
+                            <input type="hidden" name="studentId" th:value="${selectedStudent?.id}">
+                            <input type="hidden" name="subjectId" th:value="${selectedSubject?.id}">
+                            <select name="groupId" class="form-select" onchange="this.form.submit()">
                                 <option value="">Все группы</option>
                                 <option th:each="g : ${groups}" th:value="${g.id}" th:text="${g.name}"
                                         th:selected="${selectedGroupId == g.id}"></option>
@@ -61,9 +68,10 @@
                     </div>
                     <div>
                         <label class="form-label small">Студент:</label>
-                        <form th:action="@{/admin/electives}" method="get">
+                        <form th:action="@{/admin/electives}" method="get" id="studentForm">
                             <input type="hidden" name="semester" th:value="${selectedSemester}">
                             <input type="hidden" name="groupId" th:value="${selectedGroupId}">
+                            <input type="hidden" name="subjectId" th:value="${selectedSubject?.id}">
                             <select name="studentId" class="form-select" onchange="this.form.submit()">
                                 <option value="">— Выберите —</option>
                                 <option th:each="s : ${students}" th:value="${s.id}"
@@ -118,8 +126,10 @@
             <div class="card">
                 <div class="card-header"><h6>🔍 Кто выбрал предмет (JPQL)</h6></div>
                 <div class="card-body">
-                    <form th:action="@{/admin/electives}" method="get">
+                    <form th:action="@{/admin/electives}" method="get" id="subjectForm">
                         <input type="hidden" name="semester" th:value="${selectedSemester}">
+                        <input type="hidden" name="groupId" th:value="${selectedGroupId}">
+                        <input type="hidden" name="studentId" th:value="${selectedStudent?.id}">
                         <select name="subjectId" class="form-select mb-2" onchange="this.form.submit()">
                             <option value="">— Выберите предмет —</option>
                             <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"

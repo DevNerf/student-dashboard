@@ -77,6 +77,19 @@ public class AdminController {
         if (studentRepository.existsByEmail(email)) {
             model.addAttribute("error", "Студент с таким email уже существует!");
             model.addAttribute("groups", groupRepository.findAll());
+
+            Student formData = new Student();
+            formData.setFirstName(firstName);
+            formData.setLastName(lastName);
+            formData.setMiddleName(middleName);
+            formData.setEmail(email);
+            formData.setBirthPlace(birthPlace);
+            formData.setFaculty(faculty);
+            if (groupId != null) {
+                formData.setGroup(groupRepository.findById(groupId).orElse(null));
+            }
+            model.addAttribute("student", formData);
+
             return "admin/student-form";
         }
 
@@ -115,8 +128,18 @@ public class AdminController {
                          @RequestParam(required = false) String password,
                          @RequestParam(required = false) String birthPlace,
                          @RequestParam(required = false) Long groupId,
-                         @RequestParam(required = false) String faculty) {
+                         @RequestParam(required = false) String faculty,
+                         Model model) {
         Student student = studentRepository.findById(id).orElseThrow();
+
+        Optional<Student> existingStudent = studentRepository.findByEmail(email);
+        if (existingStudent.isPresent() && !existingStudent.get().getId().equals(id)) {
+            model.addAttribute("error", "Студент с таким email уже существует!");
+            model.addAttribute("student", student); // сохраняем ВСЕ данные формы
+            model.addAttribute("groups", groupRepository.findAll());
+            return "admin/student-form";
+        }
+
         student.setFirstName(firstName);
         student.setLastName(lastName);
         student.setMiddleName(middleName);
@@ -418,10 +441,11 @@ public class AdminController {
     @PostMapping("/electives/save")
     public String saveElectives(@RequestParam Long studentId,
                                 @RequestParam int semester,
+                                @RequestParam(required = false) Long groupId,
                                 @RequestParam(required = false) List<Long> subjectIds,
                                 @RequestParam(defaultValue = "5") int maxElectives) {
         if (subjectIds != null && subjectIds.size() > maxElectives) {
-            return "redirect:/admin/electives?error=limit&studentId=" + studentId + "&semester=" + semester;
+            return "redirect:/admin/electives?error=limit&studentId=" + studentId + "&semester=" + semester + "&groupId=" + (groupId != null ? groupId : "");
         }
 
         studentSubjectRepository.deleteAll(
@@ -440,6 +464,8 @@ public class AdminController {
             }
         }
 
-        return "redirect:/admin/electives?success&studentId=" + studentId + "&semester=" + semester;
+        String redirect = "redirect:/admin/electives?success&studentId=" + studentId + "&semester=" + semester;
+        if (groupId != null) redirect += "&groupId=" + groupId;
+        return redirect;
     }
 }

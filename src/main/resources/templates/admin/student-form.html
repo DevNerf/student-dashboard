@@ -26,10 +26,12 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h4 th:text="${student != null ? '✏️ Редактирование студента' : '➕ Создание студента'}"></h4>
+                    <h4 th:text="${student != null && student.id != null ? '✏️ Редактирование студента' : '➕ Создание студента'}"></h4>
                 </div>
                 <div class="card-body">
-                    <form th:action="${student != null ? '/admin/students/update/' + student.id : '/admin/students/save'}" method="post">
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+                    <form th:action="${student != null && student.id != null ? '/admin/students/update/' + student.id : '/admin/students/save'}" method="post">
                         <div class="mb-3">
                             <label class="form-label">Фамилия</label>
                             <input type="text" name="lastName" class="form-control" required
@@ -53,8 +55,8 @@
                         <div class="mb-3">
                             <label class="form-label">Пароль</label>
                             <input type="text" name="password" class="form-control"
-                                   th:placeholder="${student != null ? 'Оставьте пустым, чтобы не менять' : 'Введите пароль'}"
-                                   th:required="${student == null}">
+                                   th:placeholder="${student != null && student.id != null ? 'Оставьте пустым, чтобы не менять' : 'Введите пароль'}"
+                                   th:required="${student == null || student.id == null}">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Место рождения</label>
