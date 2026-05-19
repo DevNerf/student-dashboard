@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
 import javax.sql.DataSource;
 
 @Configuration
@@ -18,7 +19,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/login", "/admin-register", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/student/**").hasAnyRole("STUDENT", "ADMIN")
                         .anyRequest().authenticated()
@@ -26,7 +27,8 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler((request, response, authentication) -> {
-                            if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                            if (authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
                                 response.sendRedirect("/admin/dashboard");
                             } else {
                                 response.sendRedirect("/student/dashboard");
@@ -58,8 +60,23 @@ public class SecurityConfig {
     @Bean
     public JdbcUserDetailsManager userDetailsManager(DataSource dataSource) {
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
-        manager.setUsersByUsernameQuery("SELECT email, password, true FROM students WHERE email = ?");
-        manager.setAuthoritiesByUsernameQuery("SELECT email, CONCAT('ROLE_', role) FROM students WHERE email = ?");
+
+        manager.setUsersByUsernameQuery(
+                "SELECT email, password, true FROM (" +
+                        "  SELECT email, password FROM students " +
+                        "  UNION ALL " +
+                        "  SELECT email, password FROM admins" +
+                        ") AS users WHERE email = ?"
+        );
+
+        manager.setAuthoritiesByUsernameQuery(
+                "SELECT email, CONCAT('ROLE_', role) FROM (" +
+                        "  SELECT email, role FROM students " +
+                        "  UNION ALL " +
+                        "  SELECT email, role FROM admins" +
+                        ") AS roles WHERE email = ?"
+        );
+
         return manager;
     }
 }
