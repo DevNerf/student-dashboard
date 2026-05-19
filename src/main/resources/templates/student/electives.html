@@ -9,6 +9,12 @@
         body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
         .card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0; }
+        .modal-content { border-radius: 20px; border: none; }
+        .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0; }
+        .modal-footer { border-top: none; }
+        .btn-yes { border-radius: 50px; padding: 10px 25px; font-weight: bold; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; color: white; }
+        .btn-no { border-radius: 50px; padding: 10px 25px; font-weight: bold; border: 2px solid #667eea; color: #667eea; background: white; }
+        .btn-no:hover { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
     </style>
 </head>
 <body>
@@ -17,7 +23,8 @@
         <a class="navbar-brand" th:href="@{/student/dashboard}"><i class="bi bi-mortarboard-fill"></i> Личный кабинет</a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" th:href="@{/student/dashboard}">Главная</a>
-            <a class="nav-link" th:href="@{/logout-confirm}">Выйти</a>
+            <a class="nav-link" th:href="@{/student/profile}">Профиль</a>
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><i class="bi bi-box-arrow-right"></i> Выйти</a>
         </div>
     </div>
 </nav>
@@ -32,6 +39,10 @@
             <option value="2" th:selected="${selectedSemester == 2}">2 семестр</option>
             <option value="3" th:selected="${selectedSemester == 3}">3 семестр</option>
             <option value="4" th:selected="${selectedSemester == 4}">4 семестр</option>
+            <option value="5" th:selected="${selectedSemester == 5}">5 семестр</option>
+            <option value="6" th:selected="${selectedSemester == 6}">6 семестр</option>
+            <option value="7" th:selected="${selectedSemester == 7}">7 семестр</option>
+            <option value="8" th:selected="${selectedSemester == 8}">8 семестр</option>
         </select>
     </div>
 
@@ -53,5 +64,31 @@
 
     <a th:href="@{/student/dashboard}" class="btn btn-primary mt-3">← На главную</a>
 </div>
+
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-box-arrow-right"></i> Подтверждение выхода</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-person-circle" style="font-size: 4rem; color: #667eea;"></i>
+                <h4 class="mt-3" th:text="${student?.fullName ?: 'Студент'}"></h4>
+                <div class="alert alert-warning mt-3" style="border-radius: 15px;">
+                    Вы действительно хотите выйти из личного кабинета?
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <form th:action="@{/perform-logout}" method="post">
+                    <button type="submit" class="btn btn-yes"><i class="bi bi-check-lg"></i> Да, выйти</button>
+                </form>
+                <button type="button" class="btn btn-no" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Нет, остаться</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
