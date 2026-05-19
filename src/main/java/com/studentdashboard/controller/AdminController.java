@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.studentdashboard.service.CriteriaQueryService;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -286,5 +287,67 @@ public class AdminController {
     public String deleteNews(@PathVariable Long id) {
         newsRepository.deleteById(id);
         return "redirect:/admin/news?success";
+    }
+
+    @Autowired
+    private StudentSubjectRepository studentSubjectRepository;
+
+    @Autowired
+    private CriteriaQueryService criteriaQueryService;
+
+    @GetMapping("/electives")
+    public String electives(@RequestParam(required = false) Long studentId,
+                            @RequestParam(defaultValue = "1") int semester,
+                            @RequestParam(required = false) Long subjectId,
+                            Model model) {
+        model.addAttribute("students", studentRepository.findAll());
+        // Только предметы выбранного семестра
+        model.addAttribute("popularSubjects", criteriaQueryService.findPopularSubjects(semester, 2));
+        model.addAttribute("subjects", subjectRepository.findBySemester(semester));
+        model.addAttribute("selectedSemester", semester);
+
+        if (studentId != null) {
+            Student student = studentRepository.findById(studentId).orElseThrow();
+            model.addAttribute("selectedStudent", student);
+            List<StudentSubject> electives = studentSubjectRepository.findByStudentIdAndSemester(studentId, semester);
+            model.addAttribute("studentElectives", electives);
+            model.addAttribute("electiveCount", electives.size());
+        }
+
+        if (subjectId != null) {
+            List<Student> students = studentSubjectRepository.findStudentsBySubjectAndSemester(subjectId, semester);
+            model.addAttribute("subjectStudents", students);
+            model.addAttribute("selectedSubject", subjectRepository.findById(subjectId).orElse(null));
+        }
+
+        return "admin/electives";
+    }
+
+    @PostMapping("/electives/save")
+    public String saveElectives(@RequestParam Long studentId,
+                                @RequestParam int semester,
+                                @RequestParam(required = false) List<Long> subjectIds,
+                                @RequestParam(defaultValue = "5") int maxElectives) {
+        if (subjectIds != null && subjectIds.size() > maxElectives) {
+            return "redirect:/admin/electives?error=limit&studentId=" + studentId + "&semester=" + semester;
+        }
+
+        studentSubjectRepository.deleteAll(
+                studentSubjectRepository.findByStudentIdAndSemester(studentId, semester)
+        );
+
+        if (subjectIds != null) {
+            Student student = studentRepository.findById(studentId).orElseThrow();
+            for (Long subjId : subjectIds) {
+                Subject subject = subjectRepository.findById(subjId).orElseThrow();
+                StudentSubject ss = new StudentSubject();
+                ss.setStudent(student);
+                ss.setSubject(subject);
+                ss.setSemester(semester);
+                studentSubjectRepository.save(ss);
+            }
+        }
+
+        return "redirect:/admin/electives?success&studentId=" + studentId + "&semester=" + semester;
     }
 }

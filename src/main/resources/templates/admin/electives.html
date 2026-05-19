@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Курсы по выбору</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
+        .card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+        .card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0; }
+        .btn-gradient { border-radius: 50px; padding: 10px 20px; font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/admin/dashboard}"><i class="bi bi-shield-lock-fill"></i> Админ-панель</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text-white" th:href="@{/admin/dashboard}">Главная</a>
+            <a class="nav-link text-white" th:href="@{/admin/students}">Студенты</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h3>📚 Курсы по выбору</h3>
+
+    <div th:if="${param.success}" class="alert alert-success">✅ Курсы сохранены!</div>
+    <div th:if="${param.error == 'limit'}" class="alert alert-danger">❌ Превышен лимит курсов!</div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Семестр:</label>
+        <select class="form-select d-inline-block w-auto" onchange="location.href='?semester=' + this.value">
+            <option value="1" th:selected="${selectedSemester == 1}">1 семестр</option>
+            <option value="2" th:selected="${selectedSemester == 2}">2 семестр</option>
+            <option value="3" th:selected="${selectedSemester == 3}">3 семестр</option>
+            <option value="4" th:selected="${selectedSemester == 4}">4 семестр</option>
+        </select>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><h6>👤 Выберите студента</h6></div>
+                <div class="card-body">
+                    <form th:action="@{/admin/electives}" method="get">
+                        <input type="hidden" name="semester" th:value="${selectedSemester}">
+                        <select name="studentId" class="form-select" onchange="this.form.submit()">
+                            <option value="">— Выберите —</option>
+                            <option th:each="s : ${students}" th:value="${s.id}"
+                                    th:text="${s.lastName + ' ' + s.firstName + ' (' + s.group?.name + ')'}"
+                                    th:selected="${selectedStudent?.id == s.id}"></option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8" th:if="${selectedStudent != null}">
+            <div class="card">
+                <div class="card-header">
+                    <h6>📝 Курсы: <span th:text="${selectedStudent.lastName + ' ' + selectedStudent.firstName}"></span>
+                        (выбрано: <span th:text="${electiveCount}"></span>)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/electives/save}" method="post">
+                        <input type="hidden" name="studentId" th:value="${selectedStudent.id}">
+                        <input type="hidden" name="semester" th:value="${selectedSemester}">
+                        <div class="mb-2">
+                            <label>Максимум курсов:</label>
+                            <input type="number" name="maxElectives" value="5" min="1" max="10" class="form-control d-inline-block w-auto ms-2">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-2" th:each="subj : ${subjects}" th:if="${subj.semester == null or subj.semester == selectedSemester}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="subjectIds"
+                                           th:value="${subj.id}"
+                                           th:checked="${studentElectives != null and #lists.contains(studentElectives.![subject.id], subj.id)}">
+                                    <label class="form-check-label" th:text="${subj.name} + ' (' + ${subj.examType} + ')'"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${subjects == null or subjects.isEmpty()}" class="text-muted">
+                            Нет предметов для этого семестра
+                        </div>
+                        <button type="submit" class="btn btn-gradient mt-2"><i class="bi bi-save"></i> Сохранить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><h6>🔍 Кто выбрал предмет (JPQL)</h6></div>
+                <div class="card-body">
+                    <form th:action="@{/admin/electives}" method="get">
+                        <input type="hidden" name="semester" th:value="${selectedSemester}">
+                        <select name="subjectId" class="form-select mb-2" onchange="this.form.submit()">
+                            <option value="">— Выберите предмет —</option>
+                            <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.name}"
+                                    th:selected="${selectedSubject?.id == s.id}"></option>
+                        </select>
+                    </form>
+                    <ul class="list-group" th:if="${subjectStudents != null}">
+                        <li class="list-group-item" th:each="s : ${subjectStudents}" th:text="${s.lastName + ' ' + s.firstName}"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><h6>⭐ Популярные предметы (CriteriaBuilder)</h6></div>
+                <div class="card-body">
+                    <table class="table table-sm" th:if="${popularSubjects != null}">
+                        <thead><tr><th>Предмет</th><th>Записано</th></tr></thead>
+                        <tbody>
+                        <tr th:each="row : ${popularSubjects}">
+                            <td th:text="${row[0]}"></td>
+                            <td><span class="badge bg-success" th:text="${row[1]}"></span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -3,6 +3,8 @@ package com.studentdashboard.controller;
 import com.studentdashboard.model.Student;
 import com.studentdashboard.repository.GradeRepository;
 import com.studentdashboard.repository.SubjectRepository;
+import com.studentdashboard.repository.StudentSubjectRepository;
+import com.studentdashboard.model.StudentSubject;
 import com.studentdashboard.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.studentdashboard.repository.NewsRepository;
 import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 @Controller
 @RequestMapping("/student")
@@ -68,5 +71,18 @@ public class StudentController {
         model.addAttribute("student", student);
         model.addAttribute("newsList", newsRepository.findAllByOrderByPublishDateDesc(Pageable.unpaged()).getContent());
         return "student/news";
+    }
+
+    @Autowired
+    private StudentSubjectRepository studentSubjectRepository;
+
+    @GetMapping("/electives")
+    public String electives(Authentication auth, @RequestParam(defaultValue = "1") int semester, Model model) {
+        Student student = studentService.findByEmail(auth.getName()).orElseThrow();
+        List<StudentSubject> electives = studentSubjectRepository.findByStudentIdAndSemester(student.getId(), semester);
+        model.addAttribute("student", student);
+        model.addAttribute("electives", electives);
+        model.addAttribute("selectedSemester", semester);
+        return "student/electives";
     }
 }
