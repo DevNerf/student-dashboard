@@ -1,6 +1,7 @@
 package com.studentdashboard.controller;
 
 import com.studentdashboard.model.Student;
+import com.studentdashboard.model.Grade;
 import com.studentdashboard.repository.GradeRepository;
 import com.studentdashboard.repository.SubjectRepository;
 import com.studentdashboard.repository.StudentSubjectRepository;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.studentdashboard.repository.NewsRepository;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/student")
@@ -26,7 +28,19 @@ public class StudentController {
     @GetMapping("/dashboard")
     public String dashboard(Authentication auth, Model model) {
         Student student = studentService.findByEmail(auth.getName()).orElseThrow();
+
+        //List<Grade> allGrades = gradeRepository.findByStudentIdOrderByDateDesc(student.getId());
+        List<Grade> allGrades = gradeRepository.findRecentGradesByStudentId(student.getId());
+        List<Grade> recentGrades = allGrades.size() > 5 ? allGrades.subList(0, 5) : allGrades;
+
+        double avg = 0;
+        if (!allGrades.isEmpty()) {
+            avg = allGrades.stream().mapToInt(Grade::getValue).average().orElse(0);
+        }
+
         model.addAttribute("student", student);
+        model.addAttribute("recentGrades", recentGrades);
+        model.addAttribute("averageGrade", avg > 0 ? String.format("%.1f", avg) : null);
         return "student/dashboard";
     }
 
@@ -46,19 +60,31 @@ public class StudentController {
     }
 
     @GetMapping("/gradebook")
-    public String gradebook(Authentication auth, Model model) {
+    public String gradebook(Authentication auth,
+                            @RequestParam(defaultValue = "1") int semester,
+                            Model model) {
         Student student = studentService.findByEmail(auth.getName()).orElseThrow();
+
+        List<Grade> allGrades = gradeRepository.findByStudentIdOrderByDateDesc(student.getId());
+        List<Grade> filteredGrades = allGrades.stream()
+                .filter(g -> g.getSubject().getSemester() == null || g.getSubject().getSemester() == semester)
+                .collect(Collectors.toList());
+
         model.addAttribute("student", student);
-        model.addAttribute("grades", gradeRepository.findByStudentId(student.getId()));
-        model.addAttribute("subjects", subjectRepository.findAll());
+        model.addAttribute("grades", filteredGrades);
+        model.addAttribute("selectedSemester", semester);
+        model.addAttribute("subjects", subjectRepository.findBySemester(semester));
         return "student/gradebook";
     }
 
     @GetMapping("/schedule")
-    public String schedule(Authentication auth, Model model) {
+    public String schedule(Authentication auth,
+                           @RequestParam(defaultValue = "1") int semester,
+                           Model model) {
         Student student = studentService.findByEmail(auth.getName()).orElseThrow();
         model.addAttribute("student", student);
-        model.addAttribute("subjects", subjectRepository.findAll());
+        model.addAttribute("selectedSemester", semester);
+        model.addAttribute("subjects", subjectRepository.findBySemester(semester));
         return "student/schedule";
     }
 

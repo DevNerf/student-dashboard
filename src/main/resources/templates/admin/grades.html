@@ -5,55 +5,72 @@
     <title>Выставление оценок</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <style>
-        body { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); min-height: 100vh; color: white; font-family: 'Segoe UI', sans-serif; }
-        .card { border-radius: 20px; color: #333; overflow: hidden; }
-        .card-header { background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%); color: white; border-radius: 20px 20px 0 0; }
-        .btn-gradient { border-radius: 50px; padding: 10px 25px; font-weight: bold; border: none; color: white; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
+        .card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+        .card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0; }
+        .btn-gradient { border-radius: 50px; padding: 10px 20px; font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; }
+        .btn-gradient:disabled { opacity: 0.5; cursor: not-allowed; }
         .form-select { border-radius: 10px; }
         .grade-5 { color: #28a745; font-weight: bold; }
         .grade-4 { color: #17a2b8; font-weight: bold; }
         .grade-3 { color: #ffc107; font-weight: bold; }
         .grade-2 { color: #dc3545; font-weight: bold; }
+        #resultMessage { display: none; }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg" style="background: rgba(255,255,255,0.1);">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand text-white" th:href="@{/admin/dashboard}">🔧 Админ-панель</a>
+        <a class="navbar-brand" th:href="@{/admin/dashboard}"><i class="bi bi-shield-lock-fill"></i> Админ-панель</a>
         <div class="navbar-nav ms-auto">
-            <a class="nav-link text-white" th:href="@{/admin/students}">Студенты</a>
             <a class="nav-link text-white" th:href="@{/admin/dashboard}">Главная</a>
+            <a class="nav-link text-white" th:href="@{/admin/students}">Студенты</a>
         </div>
     </div>
 </nav>
 
 <div class="container mt-4">
-    <h2 class="mb-3">📊 Выставление оценок</h2>
+    <h3>📊 Выставление оценок</h3>
 
-    <div th:if="${param.success}" class="alert alert-success">✅ Оценки сохранены!</div>
-    <div th:if="${param.error}" class="alert alert-danger">❌ Выберите группу и предмет</div>
+    <div id="resultMessage" class="alert mb-3"></div>
 
     <div class="card mb-4">
+        <div class="card-header"><h6>🔍 Фильтры</h6></div>
         <div class="card-body">
-            <form th:action="@{/admin/grades}" method="get" class="row g-3">
-                <div class="col-md-5">
-                    <label class="form-label">Группа</label>
-                    <select name="groupId" class="form-select" required>
-                        <option value="">Выберите группу</option>
-                        <option th:each="g : ${groups}" th:value="${g.id}" th:text="${g.name}"></option>
+            <form th:action="@{/admin/grades}" method="get" id="filterForm" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small">Семестр</label>
+                    <select name="semester" class="form-select" onchange="submitForm()">
+                        <option value="">Выберите семестр</option>
+                        <option value="1" th:selected="${selectedSemester == 1}">1 семестр</option>
+                        <option value="2" th:selected="${selectedSemester == 2}">2 семестр</option>
+                        <option value="3" th:selected="${selectedSemester == 3}">3 семестр</option>
+                        <option value="4" th:selected="${selectedSemester == 4}">4 семестр</option>
+                        <option value="5" th:selected="${selectedSemester == 5}">5 семестр</option>
+                        <option value="6" th:selected="${selectedSemester == 6}">6 семестр</option>
+                        <option value="7" th:selected="${selectedSemester == 7}">7 семестр</option>
+                        <option value="8" th:selected="${selectedSemester == 8}">8 семестр</option>
                     </select>
                 </div>
-                <div class="col-md-5">
-                    <label class="form-label">Предмет</label>
-                    <select name="subjectId" class="form-select" required>
+                <div class="col-md-4">
+                    <label class="form-label small">Группа</label>
+                    <select name="groupId" class="form-select" onchange="submitForm()">
+                        <option value="">Выберите группу</option>
+                        <option th:each="g : ${groups}" th:value="${g.id}" th:text="${g.name}"
+                                th:selected="${selectedGroupId == g.id}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small">Предмет</label>
+                    <select name="subjectId" class="form-select" onchange="submitForm()">
                         <option value="">Выберите предмет</option>
                         <option th:each="s : ${subjects}" th:value="${s.id}"
-                                th:text="${s.name} + ' (' + ${s.examType} + ')'"></option>
+                                th:text="${s.name} + ' (' + ${s.examType} + ')'"
+                                th:selected="${selectedSubjectId == s.id}"></option>
                     </select>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-gradient w-100">Показать</button>
                 </div>
             </form>
         </div>
@@ -61,15 +78,15 @@
 
     <div class="card" th:if="${students != null and selectedSubjectId != null}">
         <div class="card-header">
-            <h5>Выставление оценок (0–100 баллов)</h5>
+            <h6>📝 Оценки (0–100 баллов)</h6>
             <small>86–100: Отлично | 71–85: Хорошо | 56–70: Удовл. | 0–55: Неуд.</small>
         </div>
         <div class="card-body">
-            <form th:action="@{/admin/grades/save}" method="post">
+            <form id="gradesForm">
                 <input type="hidden" name="subjectId" th:value="${selectedSubjectId}">
                 <input type="hidden" name="groupId" th:value="${selectedGroupId}">
-                <table class="table">
-                    <thead>
+                <table class="table table-hover">
+                    <thead class="table-dark">
                     <tr><th>Студент</th><th>Баллы (0–100)</th><th>Оценка</th></tr>
                     </thead>
                     <tbody>
@@ -77,7 +94,7 @@
                         <td th:text="${s.lastName} + ' ' + ${s.firstName}"></td>
                         <td>
                             <input type="number" th:name="'grade_' + ${s.id}"
-                                   min="0" max="100" class="form-control" style="width:100px"
+                                   min="0" max="100" class="form-control grade-input" style="width:100px"
                                    th:value="${gradeMap != null ? gradeMap[s.id] : ''}"
                                    oninput="updateGrade(this)">
                         </td>
@@ -87,41 +104,142 @@
                     </tr>
                     </tbody>
                 </table>
-                <button type="submit" class="btn btn-gradient"><i class="bi bi-save"></i> Сохранить оценки</button>
+                <button type="button" id="saveGradesBtn" class="btn btn-gradient">
+                    <i class="bi bi-save"></i> <span id="saveBtnText">Сохранить оценки</span>
+                </button>
             </form>
         </div>
     </div>
 
-    <div class="alert alert-info mt-3" th:unless="${students != null}">
-        Выберите группу и предмет, затем нажмите «Показать»
+    <div class="alert alert-info" th:unless="${students != null}">
+        <i class="bi bi-info-circle"></i> Выберите семестр, группу и предмет
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    var originalValues = {};
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var inputs = document.querySelectorAll('.grade-input');
+        inputs.forEach(function(input) {
+            originalValues[input.name] = input.value;
+            updateGrade(input);
+        });
+    });
+
     function updateGrade(input) {
-        var value = parseInt(input.value) || 0;
-        var targetId = input.name;
-        var label = document.querySelector('[data-target="' + targetId + '"]');
+        var cleaned = input.value.replace(/[^0-9]/g, '');
+        if (cleaned.length > 1 && cleaned.startsWith('0')) {
+            cleaned = cleaned.replace(/^0+/, '');
+        }
+        var value = parseInt(cleaned) || 0;
+        value = Math.max(0, Math.min(100, value));
+        input.value = value;
+
+        var label = document.querySelector('[data-target="' + input.name + '"]');
         if (!label) return;
 
         if (value >= 86) {
-            label.textContent = 'Отлично (5)';
-            label.className = 'grade-5';
+            label.textContent = 'Отлично (5)'; label.className = 'grade-5';
         } else if (value >= 71) {
-            label.textContent = 'Хорошо (4)';
-            label.className = 'grade-4';
+            label.textContent = 'Хорошо (4)'; label.className = 'grade-4';
         } else if (value >= 56) {
-            label.textContent = 'Удовл. (3)';
-            label.className = 'grade-3';
-        } else if (value > 0) {
-            label.textContent = 'Неуд. (2)';
-            label.className = 'grade-2';
+            label.textContent = 'Удовл. (3)'; label.className = 'grade-3';
+        } else if (value >= 0) {
+            label.textContent = 'Неуд. (2)'; label.className = 'grade-2';
         } else {
-            label.textContent = '—';
-            label.className = '';
+            label.textContent = '—'; label.className = '';
         }
     }
+
+    function submitForm() {
+        var form = document.getElementById('filterForm');
+        var semester = form.querySelector('[name=semester]').value;
+        var groupId = form.querySelector('[name=groupId]').value;
+        var subjectId = form.querySelector('[name=subjectId]').value;
+        var params = [];
+        if (semester) params.push('semester=' + semester);
+        if (groupId) params.push('groupId=' + groupId);
+        if (subjectId) params.push('subjectId=' + subjectId);
+        window.location.href = '/admin/grades?' + params.join('&');
+    }
+
+    $(document).ready(function() {
+        $('#saveGradesBtn').on('click', function() {
+            var btn = $(this);
+            var form = $('#gradesForm');
+            var changedData = {};
+            var hasChanges = false;
+
+            form.find('.grade-input').each(function() {
+                var input = $(this);
+                var currentValue = input.val();
+                var originalValue = originalValues[input.attr('name')];
+
+                if (currentValue !== originalValue) {
+                    changedData[input.attr('name')] = currentValue;
+                    hasChanges = true;
+                }
+            });
+
+            if (!hasChanges) {
+                var msg = $('#resultMessage');
+                msg.removeClass('alert-danger').addClass('alert-info');
+                msg.html('<i class="bi bi-info-circle"></i> Нет изменений для сохранения');
+                msg.slideDown();
+                setTimeout(function() { msg.slideUp(); }, 3000);
+                return;
+            }
+
+            changedData['subjectId'] = form.find('[name=subjectId]').val();
+            changedData['groupId'] = form.find('[name=groupId]').val();
+
+            btn.prop('disabled', true);
+            $('#saveBtnText').text('Сохранение...');
+
+            $.ajax({
+                url: '/admin/grades/save-ajax',
+                type: 'POST',
+                data: changedData,
+                headers: { 'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content') },
+                success: function(response) {
+                    var msg = $('#resultMessage');
+                    msg.removeClass('alert-danger alert-success alert-info');
+                    msg.addClass(response.success ? 'alert-success' : 'alert-danger');
+                    msg.html('<i class="bi ' + (response.success ? 'bi-check-circle' : 'bi-exclamation-circle') + '"></i> ' + response.message);
+                    msg.slideDown();
+                    setTimeout(function() { msg.slideUp(); }, 3000);
+
+                    // Обновляем исходные значения
+                    if (response.success) {
+                        for (var key in changedData) {
+                            if (key.startsWith('grade_')) {
+                                originalValues[key] = changedData[key];
+                            }
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    var msg = $('#resultMessage');
+                    msg.removeClass('alert-success alert-info').addClass('alert-danger');
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        msg.html('<i class="bi bi-exclamation-circle"></i> ' + resp.message);
+                    } catch(e) {
+                        msg.html('<i class="bi bi-exclamation-circle"></i> Ошибка при сохранении');
+                    }
+                    msg.slideDown();
+                    setTimeout(function() { msg.slideUp(); }, 5000);
+                },
+                complete: function() {
+                    btn.prop('disabled', false);
+                    $('#saveBtnText').text('Сохранить оценки');
+                }
+            });
+        });
+    });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

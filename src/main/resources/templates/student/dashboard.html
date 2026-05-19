@@ -66,10 +66,10 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-        .grade-excellent { color: #28a745; font-weight: bold; }
-        .grade-good { color: #17a2b8; font-weight: bold; }
-        .grade-satisfactory { color: #ffc107; font-weight: bold; }
-        .grade-poor { color: #dc3545; font-weight: bold; }
+        .grade-5 { color: #28a745; font-weight: bold; }
+        .grade-4 { color: #17a2b8; font-weight: bold; }
+        .grade-3 { color: #ffc107; font-weight: bold; }
+        .grade-2 { color: #dc3545; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -131,12 +131,8 @@
                             <i class="bi bi-book"></i>
                         </div>
                         <h4 class="card-title">Мои оценки</h4>
-                        <p class="card-text text-muted">
-                            Просмотр оценок по предметам сессии
-                        </p>
-                        <span class="btn btn-success">
-                            <i class="bi bi-arrow-right"></i> Открыть
-                        </span>
+                        <p class="card-text text-muted">Просмотр оценок по предметам сессии</p>
+                        <span class="btn btn-success"><i class="bi bi-arrow-right"></i> Открыть</span>
                     </div>
                 </div>
             </a>
@@ -150,12 +146,8 @@
                             <i class="bi bi-calendar-week"></i>
                         </div>
                         <h4 class="card-title">Предметы сессии</h4>
-                        <p class="card-text text-muted">
-                            Список предметов, вынесенных на сессию
-                        </p>
-                        <span class="btn btn-primary">
-                            <i class="bi bi-arrow-right"></i> Открыть
-                        </span>
+                        <p class="card-text text-muted">Список предметов, вынесенных на сессию</p>
+                        <span class="btn btn-primary"><i class="bi bi-arrow-right"></i> Открыть</span>
                     </div>
                 </div>
             </a>
@@ -169,12 +161,8 @@
                             <i class="bi bi-journal-check"></i>
                         </div>
                         <h4 class="card-title">Курсы по выбору</h4>
-                        <p class="card-text text-muted">
-                            Просмотр выбранных курсов по семестрам
-                        </p>
-                        <span class="btn btn-warning text-white">
-                    <i class="bi bi-arrow-right"></i> Открыть
-                </span>
+                        <p class="card-text text-muted">Просмотр выбранных курсов по семестрам</p>
+                        <span class="btn btn-warning text-white"><i class="bi bi-arrow-right"></i> Открыть</span>
                     </div>
                 </div>
             </a>
@@ -188,12 +176,8 @@
                             <i class="bi bi-newspaper"></i>
                         </div>
                         <h4 class="card-title">Новости</h4>
-                        <p class="card-text text-muted">
-                            Новости университета, факультета и важные объявления
-                        </p>
-                        <span class="btn btn-info text-white">
-                            <i class="bi bi-arrow-right"></i> Открыть
-                        </span>
+                        <p class="card-text text-muted">Новости университета, факультета и важные объявления</p>
+                        <span class="btn btn-info text-white"><i class="bi bi-arrow-right"></i> Открыть</span>
                     </div>
                 </div>
             </a>
@@ -208,26 +192,11 @@
                 </div>
                 <div class="card-body">
                     <table class="table table-borderless">
-                        <tr>
-                            <th>ФИО:</th>
-                            <td th:text="${student.fullName}"></td>
-                        </tr>
-                        <tr>
-                            <th>Email:</th>
-                            <td th:text="${student.email}"></td>
-                        </tr>
-                        <tr>
-                            <th>Группа:</th>
-                            <td th:text="${student.group?.name ?: 'Не указана'}"></td>
-                        </tr>
-                        <tr>
-                            <th>Факультет:</th>
-                            <td th:text="${student.faculty ?: 'Не указан'}"></td>
-                        </tr>
-                        <tr>
-                            <th>Место рождения:</th>
-                            <td th:text="${student.birthPlace ?: 'Не указано'}"></td>
-                        </tr>
+                        <tr><th>ФИО:</th><td th:text="${student.fullName}"></td></tr>
+                        <tr><th>Email:</th><td th:text="${student.email}"></td></tr>
+                        <tr><th>Группа:</th><td th:text="${student.group?.name ?: 'Не указана'}"></td></tr>
+                        <tr><th>Факультет:</th><td th:text="${student.faculty ?: 'Не указан'}"></td></tr>
+                        <tr><th>Место рождения:</th><td th:text="${student.birthPlace ?: 'Не указано'}"></td></tr>
                     </table>
                 </div>
             </div>
@@ -239,21 +208,14 @@
                     <h5 class="mb-0"><i class="bi bi-graph-up"></i> Успеваемость</h5>
                 </div>
                 <div class="card-body text-center">
-                    <h1 class="display-4 text-primary">
-                        <span th:if="${student.grades != null and !student.grades.isEmpty()}">
-                            <span th:text="${#numbers.formatDecimal(
-                                #aggregates.avg(student.grades.![value]), 0, 1
-                            )}"></span>
-                        </span>
-                        <span th:unless="${student.grades != null and !student.grades.isEmpty()}">N/A</span>
-                    </h1>
+                    <h1 class="display-4 text-primary" th:text="${averageGrade ?: 'N/A'}"></h1>
                     <p class="text-muted">Средний балл</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mt-4" th:if="${student.grades != null and !student.grades.isEmpty()}">
+    <div class="row mt-4" th:if="${recentGrades != null and !recentGrades.isEmpty()}">
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-light">
@@ -264,20 +226,22 @@
                         <thead>
                         <tr>
                             <th>Предмет</th>
+                            <th>Баллы</th>
                             <th>Оценка</th>
                             <th>Дата</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="grade : ${student.grades}" th:if="${gradeStat.count <= 5}">
+                        <tr th:each="grade : ${recentGrades}">
                             <td th:text="${grade.subject.name}"></td>
+                            <td th:text="${grade.value}"></td>
                             <td>
-                                    <span th:class="${grade.value == 5} ? 'grade-excellent' :
-                                                   (${grade.value == 4} ? 'grade-good' :
-                                                   (${grade.value == 3} ? 'grade-satisfactory' : 'grade-poor'))"
-                                          th:text="${grade.value == 5} ? 'Отлично (5)' :
-                                                   (${grade.value == 4} ? 'Хорошо (4)' :
-                                                   (${grade.value == 3} ? 'Удовл. (3)' : 'Неуд. (2)'))"></span>
+                                <span th:class="${grade.value >= 86} ? 'grade-5' :
+                                               (${grade.value >= 71} ? 'grade-4' :
+                                               (${grade.value >= 56} ? 'grade-3' : 'grade-2'))"
+                                      th:text="${grade.value >= 86} ? 'Отлично (5)' :
+                                               (${grade.value >= 71} ? 'Хорошо (4)' :
+                                               (${grade.value >= 56} ? 'Удовл. (3)' : 'Неуд. (2)'))"></span>
                             </td>
                             <td th:text="${#temporals.format(grade.date, 'dd.MM.yyyy')}"></td>
                         </tr>

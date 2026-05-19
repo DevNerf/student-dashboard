@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -194,17 +195,26 @@ public class AdminController {
 
     @GetMapping("/grades")
     public String gradesForm(@RequestParam(required = false) Long groupId,
-                             @RequestParam(required = false) Long subjectId, Model model) {
+                             @RequestParam(required = false) Long subjectId,
+                             @RequestParam(defaultValue = "1") int semester,
+                             Model model) {
         model.addAttribute("groups", groupRepository.findAll());
-        model.addAttribute("subjects", subjectRepository.findAll());
+        model.addAttribute("subjects", subjectRepository.findBySemester(semester));
+        model.addAttribute("selectedSemester", semester);
+        model.addAttribute("selectedGroupId", groupId);
+        model.addAttribute("selectedSubjectId", subjectId);
+
         if (groupId != null && subjectId != null) {
             model.addAttribute("students", studentRepository.findByGroupId(groupId));
             model.addAttribute("selectedGroupId", groupId);
             model.addAttribute("selectedSubjectId", subjectId);
+
             List<Grade> existingGrades = gradeRepository.findBySubjectId(subjectId);
             Map<Long, Integer> gradeMap = new HashMap<>();
             for (Grade g : existingGrades) {
-                gradeMap.put(g.getStudent().getId(), g.getValue());
+                if (g.getStudent().getGroup() != null && g.getStudent().getGroup().getId().equals(groupId)) {
+                    gradeMap.put(g.getStudent().getId(), g.getValue());
+                }
             }
             model.addAttribute("gradeMap", gradeMap);
         }
@@ -213,6 +223,7 @@ public class AdminController {
 
     @PostMapping("/grades/save")
     public String saveGrades(@RequestParam Long subjectId, @RequestParam Long groupId,
+                             @RequestParam(defaultValue = "1") int semester,
                              @RequestParam Map<String, String> params) {
         Subject subject = subjectRepository.findById(subjectId).orElseThrow();
         params.forEach((key, value) -> {
@@ -223,6 +234,9 @@ public class AdminController {
                     if (gradeValue >= 0 && gradeValue <= 100) {
                         Student student = studentRepository.findById(studentId).orElse(null);
                         if (student != null) {
+                            List<Grade> existingGrades = gradeRepository.findByStudentIdAndSubjectId(studentId, subjectId);
+                            gradeRepository.deleteAll(existingGrades);
+
                             Grade grade = new Grade();
                             grade.setStudent(student);
                             grade.setSubject(subject);
@@ -234,7 +248,69 @@ public class AdminController {
                 } catch (NumberFormatException ignored) {}
             }
         });
-        return "redirect:/admin/grades?success&groupId=" + groupId + "&subjectId=" + subjectId;
+
+        return "redirect:/admin/grades?success&groupId=" + groupId + "&subjectId=" + subjectId + "&semester=" + semester;
+    }
+
+    @PostMapping("/grades/save-ajax")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> saveGradesAjax(@RequestParam Long subjectId,
+                                                              @RequestParam Long groupId,
+                                                              @RequestParam Map<String, String> params) {
+        Map<String, Object> response = new HashMap<>();
+        List<String> errors = new ArrayList<>();
+
+        try {
+            Subject subject = subjectRepository.findById(subjectId).orElseThrow();
+            int savedCount = 0;
+
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+
+                if (key.startsWith("grade_") && value != null && !value.trim().isEmpty()) {
+                    try {
+                        Long studentId = Long.parseLong(key.replace("grade_", ""));
+                        int gradeValue = Integer.parseInt(value.trim());
+
+                        if (gradeValue < 0 || gradeValue > 100) {
+                            errors.add("Баллы должны быть от 0 до 100!");
+                            continue;
+                        }
+
+                        Student student = studentRepository.findById(studentId).orElse(null);
+                        if (student != null) {
+                            List<Grade> existingGrades = gradeRepository.findByStudentIdAndSubjectId(studentId, subjectId);
+                            gradeRepository.deleteAll(existingGrades);
+
+                            Grade grade = new Grade();
+                            grade.setStudent(student);
+                            grade.setSubject(subject);
+                            grade.setValue(gradeValue);
+                            grade.setDate(LocalDate.now());
+                            gradeRepository.save(grade);
+                            savedCount++;
+                        }
+                    } catch (NumberFormatException ignored) {}
+                }
+            }
+
+            if (!errors.isEmpty()) {
+                response.put("success", false);
+                response.put("message", String.join("; ", errors));
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            response.put("success", true);
+            response.put("message", "Сохранено оценок: " + savedCount);
+            response.put("savedCount", savedCount);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Ошибка: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("/news")
@@ -296,13 +372,19 @@ public class AdminController {
     private CriteriaQueryService criteriaQueryService;
 
     @GetMapping("/electives")
-    public String electives(@RequestParam(required = false) Long studentId,
+    public String electives(@RequestParam(required = false) Long groupId,
+                            @RequestParam(required = false) Long studentId,
                             @RequestParam(defaultValue = "1") int semester,
                             @RequestParam(required = false) Long subjectId,
                             Model model) {
-        model.addAttribute("students", studentRepository.findAll());
-        // Только предметы выбранного семестра
-        model.addAttribute("popularSubjects", criteriaQueryService.findPopularSubjects(semester, 2));
+        if (groupId != null) {
+            model.addAttribute("students", studentRepository.findByGroupId(groupId));
+            model.addAttribute("selectedGroupId", groupId);
+        } else {
+            model.addAttribute("students", studentRepository.findAll());
+        }
+
+        model.addAttribute("groups", groupRepository.findAll());
         model.addAttribute("subjects", subjectRepository.findBySemester(semester));
         model.addAttribute("selectedSemester", semester);
 
@@ -319,6 +401,9 @@ public class AdminController {
             model.addAttribute("subjectStudents", students);
             model.addAttribute("selectedSubject", subjectRepository.findById(subjectId).orElse(null));
         }
+
+        model.addAttribute("studentsWithoutElectives", criteriaQueryService.findStudentsWithoutElectives(semester, groupId));
+        model.addAttribute("popularSubjects", criteriaQueryService.findPopularSubjects(semester, 2));
 
         return "admin/electives";
     }
