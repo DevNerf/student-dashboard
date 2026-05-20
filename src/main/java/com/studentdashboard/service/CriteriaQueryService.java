@@ -14,7 +14,7 @@ public class CriteriaQueryService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    // CriteriaBuilder: студенты, у которых нет курсов в семестре
+    //студенты, у которых нет курсов в семестре
     public List<Student> findStudentsWithoutElectives(int semester, Long groupId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Student> query = cb.createQuery(Student.class);
@@ -39,7 +39,7 @@ public class CriteriaQueryService {
         return entityManager.createQuery(query).getResultList();
     }
 
-    // CriteriaBuilder: популярные предметы (по количеству записавшихся студентов)
+    //популярные предметы (по количеству записавшихся студентов)
     public List<Object[]> findPopularSubjects(int semester, int minStudents) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Object[]> query = cb.createQuery(Object[].class);

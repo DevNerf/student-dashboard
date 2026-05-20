@@ -14,6 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 @Controller
 public class AuthController {
 
@@ -32,6 +36,8 @@ public class AuthController {
     @Value("${admin.secret-key}")
     private String adminSecretKey;
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     @GetMapping("/login")
     public String login(Model model) {
         model.addAttribute("student", new Student());
@@ -45,7 +51,7 @@ public class AuthController {
     }
 
     @PostMapping("/admin-register")
-    public String adminRegister(@Valid @ModelAttribute("student") Admin admin,  // ← Admin, не Student
+    public String adminRegister(@Valid @ModelAttribute("student") Admin admin,
                                 @RequestParam String secretKey,
                                 BindingResult result, Model model) {
         if (result.hasErrors()) {
@@ -65,6 +71,7 @@ public class AuthController {
         admin.setRole("ADMIN");
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         adminRepository.save(admin);
+        logger.info("Регистрация нового админа: email={}", admin.getEmail());
         return "redirect:/login?admin-registered";
     }
 }

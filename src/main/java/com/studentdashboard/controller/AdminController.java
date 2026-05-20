@@ -17,6 +17,9 @@ import com.studentdashboard.service.CriteriaQueryService;
 import java.time.LocalDate;
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
@@ -29,6 +32,8 @@ public class AdminController {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private StudentSubjectRepository studentSubjectRepository;
     @Autowired private CriteriaQueryService criteriaQueryService;
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -92,7 +97,7 @@ public class AdminController {
 
             return "admin/student-form";
         }
-
+        logger.info("Создание студента: email={}", email);
         Student student = new Student();
         student.setFirstName(firstName);
         student.setLastName(lastName);
@@ -106,6 +111,7 @@ public class AdminController {
             student.setGroup(groupRepository.findById(groupId).orElse(null));
         }
         studentRepository.save(student);
+        logger.info("Студент создан: id={}", student.getId());
         return "redirect:/admin/students?success";
     }
 
@@ -159,6 +165,7 @@ public class AdminController {
     @GetMapping("/students/delete/{id}")
     public String deleteStudent(@PathVariable Long id) {
         studentRepository.deleteById(id);
+        logger.warn("Удаление студента: id={}", id);
         return "redirect:/admin/students?success";
     }
 
@@ -234,7 +241,7 @@ public class AdminController {
         model.addAttribute("selectedSemester", semester);
         model.addAttribute("selectedGroupId", groupId);
         model.addAttribute("selectedSubjectId", subjectId);
-
+        logger.info("Сохранение оценок: subjectId={}, groupId={}", subjectId, groupId);
         if (groupId != null && subjectId != null) {
             //model.addAttribute("students", studentRepository.findByGroupId(groupId));
             List<Student> students = studentRepository.findByGroupId(groupId);
@@ -252,6 +259,7 @@ public class AdminController {
             }
             model.addAttribute("gradeMap", gradeMap);
         }
+        //logger.info("Сохранение оценок: subjectId={}, groupId={}", subjectId, groupId);
         return "admin/grades";
     }
 
@@ -337,6 +345,7 @@ public class AdminController {
             response.put("success", true);
             response.put("message", "Сохранено оценок: " + savedCount);
             response.put("savedCount", savedCount);
+            logger.info("Сохранение оценок: subjectId={}, groupId={}", subjectId, groupId);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -372,6 +381,7 @@ public class AdminController {
         news.setCategory(category);
         news.setPublishDate(LocalDate.now());
         newsRepository.save(news);
+        logger.info("Создание новости: title={}", title);
         return "redirect:/admin/news?success";
     }
 
